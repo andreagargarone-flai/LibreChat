@@ -27,6 +27,11 @@ export default defineConfig(({ command }) => ({
         target: backendURL,
         changeOrigin: true,
       },
+      '/socket.io': {
+        target: backendURL,
+        changeOrigin: true,
+        ws: true,
+      },
     },
   },
   // Set the directory where environment variables are loaded from and restrict prefixes
