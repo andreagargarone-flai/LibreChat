@@ -94,6 +94,10 @@ const messageSchema: Schema<IMessage> = new Schema(
       default: undefined,
       required: false,
     },
+    feedbackText: {
+      type: String,
+      required: false,
+    },
     _meiliIndex: {
       type: Boolean,
       required: false,

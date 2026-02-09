@@ -578,6 +578,7 @@ export const tMessageSchema = z.object({
   /* frontend components */
   iconURL: z.string().nullable().optional(),
   feedback: feedbackSchema.optional(),
+  feedbackText: z.string().optional(),
   /** metadata */
   metadata: z.record(z.unknown()).optional(),
 });
@@ -610,11 +611,11 @@ export type TAttachmentMetadata = {
 export type TAttachment =
   | (TFile & TAttachmentMetadata)
   | (Pick<TFile, 'filename' | 'filepath' | 'conversationId'> & {
-      expiresAt: number;
-    } & TAttachmentMetadata)
+    expiresAt: number;
+  } & TAttachmentMetadata)
   | (Partial<Pick<TFile, 'filename' | 'filepath'>> &
-      Pick<TFile, 'conversationId'> &
-      TAttachmentMetadata);
+    Pick<TFile, 'conversationId'> &
+    TAttachmentMetadata);
 
 export type TMessage = z.input<typeof tMessageSchema> & {
   children?: TMessage[];

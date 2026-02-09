@@ -50,6 +50,8 @@ const ContentRender = memo(
       handleFeedback,
       copyToClipboard,
       regenerateMessage,
+      feedback,
+      feedbackText,
     } = useMessageActions({
       message: msg,
       searchResults,
@@ -183,6 +185,8 @@ const ContentRender = memo(
                   handleContinue={handleContinue}
                   latestMessage={latestMessage}
                   handleFeedback={handleFeedback}
+                  feedback={feedback}
+                  feedbackText={feedbackText}
                   isLast={isLast}
                 />
               </SubRow>

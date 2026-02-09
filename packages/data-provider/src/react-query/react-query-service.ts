@@ -387,7 +387,7 @@ export const useUpdateFeedbackMutation = (
       dataService.updateFeedback(conversationId, messageId, payload),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries([QueryKeys.messages, messageId]);
+        queryClient.invalidateQueries([QueryKeys.messages, conversationId]);
       },
     },
   );

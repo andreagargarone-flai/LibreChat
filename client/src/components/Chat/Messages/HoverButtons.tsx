@@ -1,4 +1,4 @@
-import React, { useState, useMemo, memo } from 'react';
+import React, { useState, useEffect, useMemo, memo } from 'react';
 import { useRecoilState } from 'recoil';
 import { MessageSquare } from 'lucide-react';
 import type { TConversation, TMessage, TFeedback } from 'librechat-data-provider';
@@ -23,7 +23,15 @@ type THoverButtons = {
   latestMessage: TMessage | null;
   isLast: boolean;
   index: number;
-  handleFeedback?: ({ feedback }: { feedback: TFeedback | undefined }) => void;
+  feedback?: TFeedback;
+  feedbackText?: string;
+  handleFeedback?: ({
+    feedback,
+    feedbackText,
+  }: {
+    feedback?: TFeedback;
+    feedbackText?: string;
+  }) => void;
 };
 
 type HoverButtonProps = {
@@ -84,13 +92,13 @@ const HoverButton = memo(
     className = '',
   }: HoverButtonProps) => {
     const buttonStyle = cn(
-      'hover-button rounded-lg p-1.5 text-text-secondary-alt',
-      'hover:text-text-primary hover:bg-surface-hover',
+      'hover-button rounded-lg p-1.5 text-text-secondary-alt transition-all duration-200',
+      'hover:text-text-primary hover:bg-surface-tertiary',
       'md:group-hover:visible md:group-focus-within:visible md:group-[.final-completion]:visible',
       !isLast && 'md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100',
       !isVisible && 'opacity-0',
-      'focus-visible:ring-2 focus-visible:ring-black dark:focus-visible:ring-white focus-visible:outline-none',
-      isActive && isVisible && 'active text-text-primary bg-surface-hover',
+      'focus-visible:ring-2 focus-visible:ring-black dark:focus-visible:ring-white focus-visible:outline-none text-sm',
+      isActive && isVisible && 'visible opacity-100 active text-text-primary bg-surface-tertiary font-bold shadow-sm',
       className,
     );
 
@@ -123,11 +131,19 @@ const HoverButtons = ({
   handleContinue,
   latestMessage,
   isLast,
+  feedback,
+  feedbackText,
   handleFeedback,
 }: THoverButtons) => {
   const localize = useLocalize();
   const [isCopied, setIsCopied] = useState(false);
   const [textFeedbackOpen, setTextFeedbackOpen] = useState(false);
+  const [localFeedbackText, setLocalFeedbackText] = useState<string | undefined>(feedbackText);
+
+  useEffect(() => {
+    setLocalFeedbackText(feedbackText);
+  }, [feedbackText]);
+
   const [TextToSpeech] = useRecoilState<boolean>(store.textToSpeech);
 
   const endpoint = useMemo(() => {
@@ -248,7 +264,7 @@ const HoverButtons = ({
 
       {/* Feedback Buttons */}
       {!isCreatedByUser && handleFeedback != null && (
-        <Feedback handleFeedback={handleFeedback} feedback={message.feedback} isLast={isLast} />
+        <Feedback handleFeedback={handleFeedback} feedback={feedback} isLast={isLast} />
       )}
 
       {/* Text Feedback Button */}
@@ -258,7 +274,7 @@ const HoverButtons = ({
             onClick={() => setTextFeedbackOpen(true)}
             title={localize('com_ui_feedback_text')}
             icon={<MessageSquare size={19} />}
-            isActive={!!message.feedback?.text}
+            isActive={!!localFeedbackText}
             isLast={isLast}
           />
           <TextFeedbackDialog
@@ -266,8 +282,14 @@ const HoverButtons = ({
             onOpenChange={setTextFeedbackOpen}
             messageId={message.messageId}
             conversationId={conversation.conversationId ?? ''}
-            existingFeedback={message.feedback}
-            handleFeedback={handleFeedback}
+            feedbackText={localFeedbackText}
+            handleFeedback={(args) => {
+              if (args.feedbackText !== undefined) {
+                console.log('[HoverButtons] Updating local text state immediately:', args.feedbackText);
+                setLocalFeedbackText(args.feedbackText || undefined);
+              }
+              handleFeedback(args);
+            }}
           />
         </>
       )}

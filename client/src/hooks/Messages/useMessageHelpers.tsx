@@ -5,7 +5,11 @@ import type { TMessageProps } from '~/common';
 import { useMessagesViewContext, useAssistantsMapContext, useAgentsMapContext } from '~/Providers';
 import { getTextKey, TEXT_KEY_DIVIDER, logger } from '~/utils';
 import useCopyToClipboard from './useCopyToClipboard';
+import { useUpdateFeedbackMutation } from 'librechat-data-provider/react-query';
+import { getTagByKey, toMinimalFeedback } from 'librechat-data-provider';
+import type { TFeedback, TUpdateFeedbackRequest } from 'librechat-data-provider';
 import { useGetAddedConvo } from '~/hooks/Chat';
+import { useState } from 'react';
 
 export default function useMessageHelpers(props: TMessageProps) {
   const latestText = useRef<string | number>('');
@@ -24,6 +28,106 @@ export default function useMessageHelpers(props: TMessageProps) {
   } = useMessagesViewContext();
   const agentsMap = useAgentsMapContext();
   const assistantMap = useAssistantsMapContext();
+
+  const [feedbackText, setFeedbackText] = useState<string | undefined>(message?.feedbackText);
+
+  useEffect(() => {
+    if (message?.feedbackText !== undefined) {
+      setFeedbackText(message.feedbackText);
+    }
+  }, [message?.feedbackText]);
+
+  const [feedback, setFeedback] = useState<TFeedback | undefined>(() => {
+    if (message?.feedback) {
+      const tagKey = typeof message.feedback.tag === 'string'
+        ? message.feedback.tag
+        : (message.feedback.tag as { key?: string })?.key;
+      const tag = getTagByKey(tagKey as any);
+      return {
+        rating: message.feedback.rating,
+        tag,
+      };
+    }
+    return undefined;
+  });
+
+  useEffect(() => {
+    const feedbackData = message?.feedback;
+    if (feedbackData) {
+      const tagKey = typeof feedbackData.tag === 'string'
+        ? feedbackData.tag
+        : (feedbackData.tag as { key?: string })?.key;
+      const tag = getTagByKey(tagKey as any);
+
+      setFeedback((prev) => {
+        const isDifferent =
+          prev?.rating !== feedbackData.rating ||
+          (prev?.tag as { key?: string })?.key !== tagKey;
+
+        if (isDifferent) {
+          return {
+            rating: feedbackData.rating,
+            tag,
+          };
+        }
+        return prev;
+      });
+    } else if (!message?.feedback) {
+      setFeedback(undefined);
+    }
+  }, [message?.feedback]);
+
+  const feedbackMutation = useUpdateFeedbackMutation(
+    conversation?.conversationId || '',
+    message?.messageId || '',
+  );
+
+  const handleFeedback = useCallback(
+    ({
+      feedback: incomingFeedback,
+      feedbackText: incomingText,
+    }: {
+      feedback?: TFeedback;
+      feedbackText?: string;
+    }) => {
+      const payload: TUpdateFeedbackRequest = {};
+
+      if (incomingFeedback !== undefined) {
+        payload.feedback = toMinimalFeedback(incomingFeedback);
+        setFeedback(incomingFeedback || undefined);
+      }
+
+      if (incomingText !== undefined) {
+        payload.feedbackText = incomingText ?? null;
+        setFeedbackText(incomingText || undefined);
+      }
+
+      feedbackMutation.mutate(payload, {
+        onSuccess: (data) => {
+          if (data && data.feedback !== undefined) {
+            if (!data.feedback) {
+              setFeedback(undefined);
+            } else {
+              const tagKey =
+                typeof data.feedback.tag === 'string'
+                  ? data.feedback.tag
+                  : (data.feedback.tag as { key?: string })?.key;
+              const tag = getTagByKey(tagKey as any);
+              setFeedback({
+                rating: data.feedback.rating,
+                tag,
+              });
+            }
+          }
+
+          if (data && data.feedbackText !== undefined) {
+            setFeedbackText(data.feedbackText || undefined);
+          }
+        },
+      });
+    },
+    [feedbackMutation],
+  );
 
   const getAddedConvo = useGetAddedConvo();
 
@@ -136,12 +240,15 @@ export default function useMessageHelpers(props: TMessageProps) {
     agent,
     index,
     isLast,
+    feedback,
     assistant,
     enterEdit,
+    feedbackText,
     conversation,
     isSubmitting,
     handleScroll,
     latestMessage,
+    handleFeedback,
     handleContinue,
     copyToClipboard,
     regenerateMessage,

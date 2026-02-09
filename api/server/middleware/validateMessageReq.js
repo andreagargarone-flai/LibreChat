@@ -3,6 +3,7 @@ const { getConvo } = require('~/models');
 // Middleware to validate conversationId and user relationship
 const validateMessageReq = async (req, res, next) => {
   let conversationId = req.params.conversationId || req.body.conversationId;
+  const { logger } = require('@librechat/data-schemas');
 
   if (conversationId === 'new') {
     return res.status(200).send([]);

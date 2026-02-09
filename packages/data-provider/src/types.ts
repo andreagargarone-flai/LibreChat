@@ -115,15 +115,15 @@ export type TPayload = Partial<TMessage> &
 
 export type TEditedContent =
   | {
-      index: number;
-      type: ContentTypes.THINK;
-      [ContentTypes.THINK]: string;
-    }
+    index: number;
+    type: ContentTypes.THINK;
+    [ContentTypes.THINK]: string;
+  }
   | {
-      index: number;
-      type: ContentTypes.TEXT;
-      [ContentTypes.TEXT]: string;
-    };
+    index: number;
+    type: ContentTypes.TEXT;
+    [ContentTypes.TEXT]: string;
+  };
 
 export type TSubmission = {
   userMessage: TMessage;
@@ -663,13 +663,15 @@ export type TAcceptTermsResponse = {
 export type TBannerResponse = TBanner | null;
 
 export type TUpdateFeedbackRequest = {
-  feedback?: TMinimalFeedback;
+  feedback?: TMinimalFeedback | null;
+  feedbackText?: string | null;
 };
 
 export type TUpdateFeedbackResponse = {
   messageId: string;
   conversationId: string;
   feedback?: TMinimalFeedback;
+  feedbackText?: string;
 };
 
 export type TBalanceResponse = {

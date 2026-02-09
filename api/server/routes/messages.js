@@ -20,6 +20,8 @@ const router = express.Router();
 router.use(requireJwtAuth);
 
 router.get('/', async (req, res) => {
+  const { conversationId: convoId, messageId: msgId, search: searchQ } = req.query;
+  logger.info(`[FEEDBACK DEBUG] HIT GET /api/messages/ - convo: ${convoId}, msg: ${msgId}, search: !!${searchQ}`);
   try {
     const user = req.user.id ?? '';
     const {
@@ -32,6 +34,9 @@ router.get('/', async (req, res) => {
       search,
     } = req.query;
     const pageSize = parseInt(pageSizeRaw, 10) || 25;
+
+    logger.info(`[FEEDBACK DEBUG] GET / messages - URL: ${req.url}`);
+    logger.info(`[FEEDBACK DEBUG] Query: ${JSON.stringify(req.query)}`);
 
     let response;
     const sortField = ['endpoint', 'createdAt', 'updatedAt'].includes(sortBy)
@@ -58,8 +63,16 @@ router.get('/', async (req, res) => {
       let nextCursor = null;
       if (messages.length > pageSize) {
         messages.pop(); // Remove extra item used to detect next page
-        // Create cursor from the last RETURNED item (not the popped one)
         nextCursor = messages[messages.length - 1][sortField];
+      }
+
+      if (messages.length > 0) {
+        logger.info(`[FEEDBACK DEBUG] GET / messages - Found ${messages.length} messages. First message fields: ${Object.keys(messages[0]).join(', ')}`);
+        messages.forEach(m => {
+          if (m.feedback || m.feedbackText) {
+            logger.info(`[FEEDBACK DEBUG] GET / messages - FOUND feedback for ID: ${m.messageId}, feedback: ${JSON.stringify(m.feedback)}, feedbackText: ${m.feedbackText}`);
+          }
+        });
       }
       response = { messages, nextCursor };
     } else if (search) {
@@ -281,8 +294,8 @@ router.post('/artifact/:messageId', async (req, res) => {
 
 /* Note: It's necessary to add `validateMessageReq` within route definition for correct params */
 router.get('/:conversationId', validateMessageReq, async (req, res) => {
+  const { conversationId } = req.params;
   try {
-    const { conversationId } = req.params;
     const messages = await getMessages({ conversationId }, '-_id -__v -user');
     res.status(200).json(messages);
   } catch (error) {
@@ -380,25 +393,25 @@ router.put('/:conversationId/:messageId', validateMessageReq, async (req, res) =
 router.put('/:conversationId/:messageId/feedback', validateMessageReq, async (req, res) => {
   try {
     const { conversationId, messageId } = req.params;
-    const { feedback } = req.body;
+    const { feedback, feedbackText } = req.body;
+    const updatePayload = {
+      messageId,
+    };
 
-    logger.info(`[FEEDBACK DEBUG] Received feedback for message ${messageId}:`, JSON.stringify(feedback, null, 2));
+    if (feedback !== undefined) {
+      updatePayload.feedback = feedback || null;
+    }
+    if (feedbackText !== undefined) {
+      updatePayload.feedbackText = feedbackText || null;
+    }
 
-    const updatedMessage = await updateMessage(
-      req,
-      {
-        messageId,
-        feedback: feedback || null,
-      },
-      { context: 'updateFeedback' },
-    );
-
-    logger.info(`[FEEDBACK DEBUG] Updated message feedback:`, JSON.stringify(updatedMessage.feedback, null, 2));
+    const updatedMessage = await updateMessage(req, updatePayload, { context: 'updateFeedback' });
 
     res.json({
       messageId,
       conversationId,
       feedback: updatedMessage.feedback,
+      feedbackText: updatedMessage.feedbackText,
     });
   } catch (error) {
     logger.error('Error updating message feedback:', error);

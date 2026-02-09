@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { OGDialog, OGDialogTemplate, Button, Label, useToastContext } from '@librechat/client';
 import type { TFeedback } from 'librechat-data-provider';
 import { useLocalize } from '~/hooks';
@@ -8,38 +8,35 @@ interface TextFeedbackDialogProps {
   onOpenChange: (open: boolean) => void;
   messageId: string;
   conversationId: string;
-  existingFeedback?: TFeedback;
-  handleFeedback: ({ feedback }: { feedback: TFeedback | undefined }) => void;
+  feedbackText?: string;
+  handleFeedback: ({
+    feedback,
+    feedbackText,
+  }: {
+    feedback?: TFeedback;
+    feedbackText?: string;
+  }) => void;
 }
 
 export default function TextFeedbackDialog({
   open,
   onOpenChange,
-  existingFeedback,
+  feedbackText: initialText,
   handleFeedback,
 }: TextFeedbackDialogProps) {
-  const [feedbackText, setFeedbackText] = useState(existingFeedback?.text || '');
+  const [feedbackText, setFeedbackText] = useState(initialText || '');
   const { showToast } = useToastContext();
   const localize = useLocalize();
 
+  useEffect(() => {
+    setFeedbackText(initialText || '');
+  }, [initialText]);
+
+
   const handleSave = () => {
-    if (!feedbackText.trim()) {
-      showToast({
-        message: localize('com_ui_field_required'),
-        status: 'error',
-      });
-      return;
-    }
+    const trimmedText = feedbackText.trim();
 
-    // Preserve existing rating and tag if they exist
-    const newFeedback: TFeedback = {
-      text: feedbackText.trim(),
-      rating: existingFeedback?.rating,
-      tag: existingFeedback?.tag,
-    };
-
-    console.log('[TextFeedbackDialog] Sending feedback:', newFeedback);
-    handleFeedback({ feedback: newFeedback });
+    handleFeedback({ feedbackText: trimmedText || (null as any) });
 
     showToast({
       message: localize('com_ui_saved'),
@@ -50,15 +47,7 @@ export default function TextFeedbackDialog({
 
   const handleClear = () => {
     setFeedbackText('');
-    // Clear only the text, preserve rating and tag
-    const clearedFeedback: TFeedback | undefined = existingFeedback?.rating
-      ? {
-          rating: existingFeedback.rating,
-          tag: existingFeedback.tag,
-          text: undefined,
-        }
-      : undefined;
-    handleFeedback({ feedback: clearedFeedback });
+    handleFeedback({ feedbackText: null as any });
     showToast({
       message: localize('com_ui_cleared'),
       status: 'success',
@@ -106,7 +95,7 @@ export default function TextFeedbackDialog({
             <Button variant="outline" onClick={handleClear} disabled={!feedbackText}>
               {localize('com_ui_clear')}
             </Button>
-            <Button variant="submit" onClick={handleSave} disabled={!feedbackText.trim()}>
+            <Button variant="submit" onClick={handleSave}>
               {localize('com_ui_save')}
             </Button>
           </>

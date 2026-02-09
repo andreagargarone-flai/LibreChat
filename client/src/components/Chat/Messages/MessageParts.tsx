@@ -36,6 +36,9 @@ export default function Message(props: TMessageProps) {
     handleContinue,
     copyToClipboard,
     regenerateMessage,
+    handleFeedback,
+    feedback,
+    feedbackText,
   } = useMessageHelpers(props);
 
   const fontSize = useAtomValue(fontSizeAtom);
@@ -166,6 +169,9 @@ export default function Message(props: TMessageProps) {
                       copyToClipboard={copyToClipboard}
                       handleContinue={handleContinue}
                       latestMessage={latestMessage}
+                      handleFeedback={handleFeedback}
+                      feedback={feedback}
+                      feedbackText={feedbackText}
                       isLast={isLast}
                     />
                   </SubRow>

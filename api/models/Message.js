@@ -80,6 +80,11 @@ async function saveMessage(req, params, metadata) {
       { upsert: true, new: true },
     );
 
+    if (!global.messageSchemaLogged) {
+      logger.info(`[FEEDBACK DEBUG] Message Schema Paths: ${Object.keys(Message.schema.paths).join(', ')}`);
+      global.messageSchemaLogged = true;
+    }
+
     return message.toObject();
   } catch (err) {
     logger.error('Error saving message:', err);
@@ -260,6 +265,7 @@ async function updateMessage(req, message, metadata) {
       isCreatedByUser: updatedMessage.isCreatedByUser,
       tokenCount: updatedMessage.tokenCount,
       feedback: updatedMessage.feedback,
+      feedbackText: updatedMessage.feedbackText,
     };
   } catch (err) {
     logger.error('Error updating message:', err);
@@ -310,11 +316,11 @@ async function deleteMessagesSince(req, { messageId, conversationId }) {
  */
 async function getMessages(filter, select) {
   try {
+    let query = Message.find(filter).sort({ createdAt: 1 });
     if (select) {
-      return await Message.find(filter).select(select).sort({ createdAt: 1 }).lean();
+      query = query.select(select);
     }
-
-    return await Message.find(filter).sort({ createdAt: 1 }).lean();
+    return await query.lean();
   } catch (err) {
     logger.error('Error getting messages:', err);
     throw err;

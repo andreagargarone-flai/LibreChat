@@ -2,10 +2,6 @@ import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import * as Ariakit from '@ariakit/react';
 import { TFeedback, TFeedbackTag, getTagsForRating } from 'librechat-data-provider';
 import {
-  Button,
-  OGDialog,
-  OGDialogContent,
-  OGDialogTitle,
   ThumbUpIcon,
   ThumbDownIcon,
 } from '@librechat/client';
@@ -23,7 +19,13 @@ import { useLocalize } from '~/hooks';
 import { cn } from '~/utils';
 
 interface FeedbackProps {
-  handleFeedback: ({ feedback }: { feedback: TFeedback | undefined }) => void;
+  handleFeedback: ({
+    feedback,
+    feedbackText,
+  }: {
+    feedback?: TFeedback | null;
+    feedbackText?: string | null;
+  }) => void;
   feedback?: TFeedback;
   isLast?: boolean;
 }
@@ -65,7 +67,7 @@ function FeedbackOptionButton({
       aria-label={label}
       aria-pressed={active}
     >
-      <Icon size="19" bold={active} aria-hidden="true" />
+      <Icon size="19" bold={active ? true : undefined} aria-hidden="true" />
       <span>{label}</span>
     </button>
   );
@@ -75,12 +77,10 @@ function FeedbackButtons({
   isLast,
   feedback,
   onFeedback,
-  onOther,
 }: {
   isLast: boolean;
   feedback?: TFeedback;
-  onFeedback: (fb: TFeedback | undefined) => void;
-  onOther?: () => void;
+  onFeedback: (fb: TFeedback | undefined | null) => void;
 }) {
   const localize = useLocalize();
   const upStore = Ariakit.usePopoverStore({ placement: 'bottom' });
@@ -99,21 +99,22 @@ function FeedbackButtons({
         upStore.toggle();
         return;
       }
-      onFeedback(undefined);
+      onFeedback(null);
     },
-    [feedback, onFeedback, upStore],
+    [feedback?.rating, onFeedback, upStore],
   );
 
   const handleUpOption = useCallback(
     (tag: TFeedbackTag) => (e: React.MouseEvent<HTMLButtonElement>) => {
       e.preventDefault();
       upStore.hide();
-      onFeedback({ rating: 'thumbsUp', tag });
-      if (tag.key === 'other') {
-        onOther?.();
-      }
+      // Decoupled: only send rating and tag
+      onFeedback({
+        rating: 'thumbsUp',
+        tag,
+      });
     },
-    [onFeedback, onOther, upStore],
+    [onFeedback, upStore],
   );
 
   const handleThumbsDownClick = useCallback(
@@ -123,22 +124,22 @@ function FeedbackButtons({
         downStore.toggle();
         return;
       }
-
-      onOther?.();
+      onFeedback(null);
     },
-    [feedback, onOther, downStore],
+    [feedback?.rating, onFeedback, downStore],
   );
 
   const handleDownOption = useCallback(
     (tag: TFeedbackTag) => (e: React.MouseEvent<HTMLButtonElement>) => {
       e.preventDefault();
       downStore.hide();
-      onFeedback({ rating: 'thumbsDown', tag });
-      if (tag.key === 'other') {
-        onOther?.();
-      }
+      // Decoupled: only send rating and tag
+      onFeedback({
+        rating: 'thumbsDown',
+        tag,
+      });
     },
-    [onFeedback, onOther, downStore],
+    [onFeedback, downStore],
   );
 
   return (
@@ -154,7 +155,7 @@ function FeedbackButtons({
             aria-pressed={feedback?.rating === 'thumbsUp'}
             aria-haspopup="menu"
           >
-            <ThumbUpIcon size="19" bold={feedback?.rating === 'thumbsUp'} />
+            <ThumbUpIcon size="19" bold={feedback?.rating === 'thumbsUp' ? true : undefined} />
           </button>
         }
       />
@@ -188,7 +189,7 @@ function FeedbackButtons({
             aria-pressed={feedback?.rating === 'thumbsDown'}
             aria-haspopup="menu"
           >
-            <ThumbDownIcon size="19" bold={feedback?.rating === 'thumbsDown'} />
+            <ThumbDownIcon size="19" bold={feedback?.rating === 'thumbsDown' ? true : undefined} />
           </button>
         }
       />
@@ -216,12 +217,12 @@ function FeedbackButtons({
 
 function buttonClasses(isActive: boolean, isLast: boolean) {
   return cn(
-    'hover-button rounded-lg p-1.5 text-text-secondary-alt',
-    'hover:text-text-primary hover:bg-surface-hover',
+    'hover-button rounded-lg p-1.5 text-text-secondary-alt transition-all duration-200',
+    'hover:text-text-primary hover:bg-surface-tertiary',
     'md:group-hover:visible md:group-focus-within:visible md:group-[.final-completion]:visible',
     !isLast && 'md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100',
-    'focus-visible:ring-2 focus-visible:ring-black dark:focus-visible:ring-white focus-visible:outline-none',
-    isActive && 'active text-text-primary bg-surface-hover',
+    'focus-visible:ring-2 focus-visible:ring-black dark:focus-visible:ring-white focus-visible:outline-none text-sm',
+    isActive && 'visible opacity-100 text-text-primary bg-surface-tertiary font-bold active shadow-sm',
   );
 }
 
@@ -231,7 +232,6 @@ export default function Feedback({
   feedback: initialFeedback,
 }: FeedbackProps) {
   const localize = useLocalize();
-  const [openDialog, setOpenDialog] = useState(false);
   const [feedback, setFeedback] = useState<TFeedback | undefined>(initialFeedback);
 
   useEffect(() => {
@@ -239,44 +239,24 @@ export default function Feedback({
   }, [initialFeedback]);
 
   const propagateMinimal = useCallback(
-    (fb: TFeedback | undefined) => {
-      setFeedback(fb);
+    (fb: TFeedback | undefined | null) => {
+      setFeedback(fb || undefined);
       handleFeedback({ feedback: fb });
     },
     [handleFeedback],
   );
 
   const handleButtonFeedback = useCallback(
-    (fb: TFeedback | undefined) => {
-      if (fb?.tag?.key === 'other') setOpenDialog(true);
-      else setOpenDialog(false);
+    (fb: TFeedback | undefined | null) => {
       propagateMinimal(fb);
     },
     [propagateMinimal],
   );
 
-  const handleOtherOpen = useCallback(() => setOpenDialog(true), []);
-
-  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setFeedback((prev) => (prev ? { ...prev, text: e.target.value } : undefined));
-  };
-
-  const handleDialogSave = useCallback(() => {
-    if (feedback?.tag?.key === 'other' && !feedback?.text?.trim()) {
-      return;
-    }
-    propagateMinimal(feedback);
-    setOpenDialog(false);
-  }, [feedback, propagateMinimal]);
-
-  const handleDialogClear = useCallback(() => {
-    setFeedback(undefined);
-    handleFeedback({ feedback: undefined });
-    setOpenDialog(false);
-  }, [handleFeedback]);
-
   const renderSingleFeedbackButton = () => {
-    if (!feedback) return null;
+    if (!feedback) {
+      return null;
+    }
     const isThumbsUp = feedback.rating === 'thumbsUp';
     const Icon = isThumbsUp ? ThumbUpIcon : ThumbDownIcon;
     const label = isThumbsUp
@@ -286,11 +266,7 @@ export default function Feedback({
       <button
         className={buttonClasses(true, isLast)}
         onClick={() => {
-          if (isThumbsUp) {
-            handleButtonFeedback(undefined);
-          } else {
-            setOpenDialog(true);
-          }
+          handleButtonFeedback(null as any);
         }}
         type="button"
         title={label}
@@ -303,39 +279,15 @@ export default function Feedback({
 
   return (
     <>
-      {feedback ? (
+      {feedback?.rating ? (
         renderSingleFeedbackButton()
       ) : (
         <FeedbackButtons
           isLast={isLast}
           feedback={feedback}
           onFeedback={handleButtonFeedback}
-          onOther={handleOtherOpen}
         />
       )}
-      <OGDialog open={openDialog} onOpenChange={setOpenDialog}>
-        <OGDialogContent className="w-11/12 max-w-lg">
-          <OGDialogTitle className="text-token-text-primary text-lg font-semibold leading-6">
-            {localize('com_ui_feedback_more_information')}
-          </OGDialogTitle>
-          <textarea
-            className="w-full rounded-xl border border-border-light bg-transparent p-2 text-text-primary"
-            value={feedback?.text || ''}
-            onChange={handleTextChange}
-            rows={4}
-            placeholder={localize('com_ui_feedback_placeholder')}
-            maxLength={500}
-          />
-          <div className="mt-4 flex items-end justify-end gap-2">
-            <Button variant="destructive" onClick={handleDialogClear}>
-              {localize('com_ui_delete')}
-            </Button>
-            <Button variant="submit" onClick={handleDialogSave} disabled={!feedback?.text?.trim()}>
-              {localize('com_ui_save')}
-            </Button>
-          </div>
-        </OGDialogContent>
-      </OGDialog>
     </>
   );
 }

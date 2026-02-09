@@ -39,6 +39,7 @@ const MessageRender = memo(
       edit,
       index,
       agent,
+      feedback,
       assistant,
       enterEdit,
       conversation,
@@ -48,6 +49,7 @@ const MessageRender = memo(
       handleContinue,
       copyToClipboard,
       regenerateMessage,
+      feedbackText,
     } = useMessageActions({
       message: msg,
       currentEditId,
@@ -188,6 +190,8 @@ const MessageRender = memo(
                   handleContinue={handleContinue}
                   latestMessage={latestMessage}
                   handleFeedback={handleFeedback}
+                  feedback={feedback}
+                  feedbackText={feedbackText}
                   isLast={isLast}
                 />
               </SubRow>
