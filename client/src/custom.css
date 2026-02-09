@@ -1,535 +1,268 @@
 /**
- * Custom CSS overrides - COSMIC SPACE DESIGN
- * Inspired by futuristic space interface
- * This file contains user customizations that won't be affected by updates
+ * Custom CSS overrides - FLAi DASHBOARD COSMIC DESIGN
+ * Versione corretta e ottimizzata
  */
 
-/* Import Archivo font from Google Fonts */
+/* 1. IMPORTAZIONE FONT */
 @import url('https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,100..900;1,100..900&display=swap');
 
 /* ============================================
-   GLOBAL FONT SETTINGS
+   GLOBAL SETTINGS & VARIABLES
    ============================================ */
-* {
-  font-family: 'Archivo', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
-}
-
-/* ============================================
-   COSMIC COLOR THEME
-   Primary: rgb(25, 129, 196) - Cosmic Blue
-   Secondary: rgb(12, 17, 53) - Deep Space Navy
-   Accent: #9333ea - Purple Nebula
-   Glow: Cyan/Purple neon effects
-   ============================================ */
-
 :root {
-  /* Cosmic Theme Colors */
-  --cosmic-primary: rgb(25, 129, 196);
-  --cosmic-primary-dark: rgb(20, 103, 157);
-  --cosmic-primary-light: rgb(100, 180, 230);
-  --cosmic-secondary: rgb(12, 17, 53);
-  --cosmic-purple: #9333ea;
-  --cosmic-purple-light: #a855f7;
-  --cosmic-cyan: #06b6d4;
-  --cosmic-pink: #ec4899;
-  --cosmic-bg: #0a0e1a;
-  --cosmic-card-dark: rgba(15, 23, 42, 0.9);
-  --cosmic-glow-blue: rgba(25, 129, 196, 0.6);
-  --cosmic-glow-purple: rgba(147, 51, 234, 0.5);
-  --cosmic-glow-cyan: rgba(6, 182, 212, 0.5);
+  --cosmic-primary: #0581ce;
+  --cosmic-primary-hover: #0891d1;
+  --cosmic-bg-gradient: linear-gradient(135deg, #0581ce 0%, #070f36 100%);
+  --cosmic-text-dark: #1a1a1a;
+  --cosmic-border: #cccccc;
+  --user-bubble: rgba(220, 240, 255, 0.9);
+  --agent-bubble: rgba(245, 245, 245, 0.9);
+}
+
+* {
+  font-family: 'Archivo', -apple-system, sans-serif !important;
+}
+
+body {
+  color: #000000 !important;
 }
 
 /* ============================================
-   Hide Right Side Panel
+   HIDE UNWANTED ELEMENTS
    ============================================ */
-#controls-nav {
-  display: none !important;
-}
-
-div[data-panel-resize-handle-id] {
-  display: none !important;
-}
-
-#toggle-right-nav {
-  display: none !important;
-}
-
-/* ============================================
-   CUSTOM HEADER STYLING
-   Safe-merge approach: Style header via CSS without modifying Header.tsx
-   ============================================ */
-
-/* Header container - 55px height with light blue background */
-.custom-header-wrapper {
-  height: 55px;
-  background: rgb(135, 206, 235) !important;
-  /* Light blue (sky blue) */
-  display: flex;
-  align-items: center;
-  position: relative;
-  z-index: 10;
-}
-
-/* Override original header background */
-.custom-header-wrapper>div {
-  background: transparent !important;
-  height: 55px !important;
-}
-
-/* Hide all buttons except OpenSidebar */
-.custom-header-wrapper button:not(#open-sidebar-button),
-.custom-header-wrapper [role="button"]:not(#open-sidebar-button),
-.custom-header-wrapper [role="menu"],
-.custom-header-wrapper [role="menuitem"] {
-  display: none !important;
-}
-
-/* Ensure OpenSidebar button is always visible */
-#open-sidebar-button {
-  display: inline-flex !important;
-  justify-content: center;
-  align-items: center;
-}
-
-/* Logo container - hidden */
+/* Pannello destro e controlli navigazione */
+#controls-nav,
+div[data-panel-resize-handle-id],
+#toggle-right-nav,
+[aria-label="Open React Query Devtools"],
+#export-menu-button,
+button[aria-label*="Export" i],
+button[aria-label*="Share" i],
+button[aria-label*="Condividi" i],
+#presets-button,
+button[data-testid="presets-button"],
+button[data-testid="add-multi-convo-button"],
+button.hover-button[aria-label*="fork" i],
+#tools-dropdown-button,
+button[aria-label="Tools Options"],
+#bookmark-nav-menu-button,
+button[id^="edit-"],
+button.hover-button[title*="Edit" i],
+button.hover-button[title*="Regenerate" i],
 .custom-logo-container {
   display: none !important;
 }
 
-/* Hide React Query Devtools button */
-[aria-label="Open React Query Devtools"] {
-  display: none !important;
+/* ============================================
+   SIDEBAR & CHAT LIST - LIBRECHAT ORIGINAL STYLE
+   ============================================ */
+#chat-history-nav {
+  position: relative !important;
+  padding-top: 110px !important;
+  padding-bottom: 110px !important;
+  border-right: 2px solid var(--cosmic-border) !important;
 }
 
-/* Hide only Fork button (GitFork icon) on messages */
-/* Target Fork button by its aria-label containing "fork" (case insensitive) */
-button.hover-button[aria-label*="fork" i] {
-  display: none !important;
+/* Chat selezionata - sfondo azzurro come originale */
+[data-testid="convo-item"].bg-surface-active-alt,
+[data-testid="convo-item"]:has(.bg-surface-active-alt),
+div[data-testid="convo-item"][class*="bg-surface-active"] {
+  background-color: var(--cosmic-primary) !important;
+}
+
+/* Testo chat selezionata - bianco come originale */
+[data-testid="convo-item"].bg-surface-active-alt *,
+[data-testid="convo-item"]:has(.bg-surface-active-alt) *,
+div[data-testid="convo-item"][class*="bg-surface-active"] * {
+  color: #ffffff !important;
 }
 
 /* ============================================
-   CHAT MESSAGES - BLUE BUBBLES
+   CUSTOM HEADER
    ============================================ */
-
-/* User messages - Bright blue */
-.bg-user-message,
-[data-message-author="user"] {
-  background: linear-gradient(135deg,
-      rgba(25, 129, 196, 0.3),
-      rgba(77, 166, 218, 0.25)) !important;
-  border: 1px solid rgba(25, 129, 196, 0.5) !important;
-  border-radius: 16px 16px 4px 16px !important;
-  padding: 12px 16px !important;
-  color: rgba(255, 255, 255, 0.95) !important;
-  box-shadow:
-    0 4px 16px rgba(25, 129, 196, 0.3),
-    inset 0 0 20px rgba(25, 129, 196, 0.1),
-    0 0 30px rgba(25, 129, 196, 0.15) !important;
-  backdrop-filter: blur(10px);
-}
-
-/* Assistant messages - Light blue */
-.bg-assistant-message,
-[data-message-author="assistant"] {
-  background: linear-gradient(135deg,
-      rgba(25, 129, 196, 0.18),
-      rgba(100, 180, 230, 0.15)) !important;
-  border: 1px solid rgba(25, 129, 196, 0.4) !important;
-  border-radius: 16px 16px 16px 4px !important;
-  padding: 12px 16px !important;
-  color: rgba(255, 255, 255, 0.95) !important;
-  box-shadow:
-    0 4px 16px rgba(25, 129, 196, 0.2),
-    inset 0 0 20px rgba(25, 129, 196, 0.08),
-    0 0 30px rgba(100, 180, 230, 0.12) !important;
-  backdrop-filter: blur(10px);
-}
-
-
-/***********************************************************************************/
-/* Contenitore del messaggio */
-[data-testid="message"] {
-  border-radius: 12px !important;
-  margin-bottom: 10px !important;
-  padding: 10px !important;
-}
-
-/* Messaggio dell'Utente */
-[class*="bg-token-main-surface-secondary"] {
-  background-color: #334155 !important;
-  /* Grigio-blu per l'utente */
-  border: 1px solid #475569 !important;
-}
-
-/* Messaggio dell'Assistente (AI) */
-[class*="bg-token-main-surface-primary"] {
-  background-color: transparent !important;
-}
-
-
-
-/* ============================================
-   CUSTOM LOGIN STYLING (SAFE-MERGE)
-   ============================================ */
-
-/* Rimuovi sfondo bianco della pagina di login e applica gradiente */
-div.relative.flex.min-h-screen.flex-col {
-  background: linear-gradient(135deg, #0581ce 0%, #070f36 100%) !important;
-}
-
-/* Nascondi logo in alto nella pagina di login */
-div.relative.flex.min-h-screen.flex-col > div:has(img[src*="logo.svg"]) {
-  display: none !important;
-}
-
-/* Nascondi selettore tema chiaro/scuro */
-div.absolute.bottom-0.left-0 {
-  display: none !important;
-}
-
-/* Container principale della pagina login - layout verticale */
-main.flex.flex-grow.items-center.justify-center {
+.custom-header-wrapper {
+  height: 62px !important;
+  background: #ffffff !important;
+  border-bottom: 2px solid var(--cosmic-border) !important;
   display: flex !important;
-  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  position: relative !important;
+  z-index: 50 !important;
+  padding: 0 16px !important;
+}
+
+.custom-header-wrapper::after {
+  content: "FLAi Dashboard";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 20px;
+  font-weight: 600;
+  color: #1a1a1a;
+  pointer-events: none;
+}
+
+.header-logo-left,
+.header-logo-right {
+  position: absolute !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  height: 50px !important;
+  width: 120px !important;
+  display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  gap: 24px !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  border-radius: 4px;
 }
 
-/* Container del form e contenuto - sfondo trasparente */
-div.w-authPageWidth {
-  background: transparent !important;
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  gap: 20px !important;
-  max-width: 100% !important;
+.header-logo-left {
+  left: 60px !important;
 }
 
-/* Titolo "Bentornato" - stile personalizzato */
-main h1 {
-  color: #ffffff !important;
-  font-size: 32px !important;
-  font-weight: 600 !important;
-  text-align: center !important;
-  margin: 0 !important;
-  order: -2 !important;
-}
-
-/* Paragrafo "Non hai un account" - sotto il form */
-main p {
-  color: #ffffff !important;
-  font-size: 15px !important;
-  text-align: center !important;
-  margin: 0 !important;
-  order: 2 !important;
-}
-
-/* Link "Registrati" nel paragrafo */
-main p a {
-  color: #0ba5ec !important;
-  font-weight: 600 !important;
-  text-decoration: underline !important;
-}
-
-main p a:hover {
-  color: #ffffff !important;
-}
-
-/* Form login/registrazione - Box con shadow, centrato e compatto - FLAI STYLE */
-form[aria-label="Login form"],
-form[aria-label="Registration form"] {
-  position: relative !important;
-  background-color: #ffffff !important;
-  border-radius: 8px !important;
-  padding: 115px 35px 35px 35px !important;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25) !important;
-  width: 100% !important;
-  max-width: 380px !important;
-  order: 0 !important;
-}
-
-/* Margini tra elementi del form - FLAI STYLE */
-form[aria-label="Login form"] .mb-4,
-form[aria-label="Registration form"] .mb-4 {
-  margin-bottom: 20px !important;
-  position: relative !important;
-}
-
-form[aria-label="Login form"] .mb-2,
-form[aria-label="Registration form"] .mb-2 {
-  margin-bottom: 8px !important;
-  position: relative !important;
-}
-
-form[aria-label="Login form"] .mt-6,
-form[aria-label="Registration form"] .mt-6 {
-  margin-top: 16px !important;
-}
-
-form[aria-label="Login form"] .my-4,
-form[aria-label="Registration form"] .my-4 {
-  margin-top: 16px !important;
-  margin-bottom: 16px !important;
-}
-
-/* Container degli input - position relative per labels */
-form[aria-label="Login form"] .relative,
-form[aria-label="Registration form"] .relative {
-  position: relative !important;
+.header-logo-right {
+  right: 16px !important;
 }
 
 /* ============================================
-   LOGO E TITOLO FLAI - AGGIUNTI AL TOP DEL FORM
+   CHAT BUBBLES (WHATSAPP STYLE)
    ============================================ */
+/* Nascondi Avatar e Titoli per minimalismo */
+.user-turn h2,
+.agent-turn h2,
+.user-turn .relative.flex.h-9,
+.agent-turn .relative.flex.h-9 {
+  display: none !important;
+}
 
-/* Logo FLAi sopra il form - posizionato in alto */
-form[aria-label="Login form"]::before,
-form[aria-label="Registration form"]::before {
+/* Allineamento Turni */
+.user-turn {
+  justify-content: flex-end !important;
+  margin-bottom: 12px !important;
+}
+
+.agent-turn {
+  justify-content: flex-start !important;
+  margin-bottom: 12px !important;
+}
+
+/* Fumetto Utente */
+.user-turn .text-message {
+  background: var(--user-bubble) !important;
+  border: 1px solid rgba(25, 129, 196, 0.2) !important;
+  border-radius: 18px 0px 18px 18px !important;
+  padding: 12px 16px !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05) !important;
+  max-width: 85% !important;
+  min-width: 100px !important;
+}
+
+/* Fumetto Assistente */
+.agent-turn .text-message {
+  background: var(--agent-bubble) !important;
+  border: 1px solid rgba(200, 200, 200, 0.3) !important;
+  border-radius: 0px 18px 18px 18px !important;
+  padding: 12px 16px !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05) !important;
+  max-width: 85% !important;
+  min-width: 100px !important;
+}
+
+/* Colore testo messaggi */
+.text-message,
+.text-message * {
+  color: var(--cosmic-text-dark) !important;
+  text-align: left !important;
+}
+
+/* ============================================
+   LOGIN & REGISTRATION PAGE
+   ============================================ */
+/* Sfondo pagina intera - colore solido */
+div.relative.flex.min-h-screen.flex-col {
+  background: var(--cosmic-primary) !important;
+}
+
+/* Centratura Main */
+main.flex.flex-grow.items-center.justify-center {
+  flex-direction: column !important;
+}
+
+/* BOX FORM FLAI */
+form[aria-label*="form" i] {
+  position: relative !important;
+  background-color: #ffffff !important;
+  border-radius: 12px !important;
+  padding: 120px 35px 35px 35px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+  width: 100% !important;
+  max-width: 400px !important;
+}
+
+/* Logo FLAi sopra il form */
+form[aria-label*="form" i]::before {
   content: "FLAi";
   position: absolute;
-  top: 25px;
+  top: 30px;
   left: 0;
   right: 0;
-  display: block;
-  font-size: 52px;
-  font-weight: 700;
+  font-size: 50px;
+  font-weight: 800;
   text-align: center;
   color: #1a1a1a;
   letter-spacing: 2px;
 }
 
-/* Sottotitolo "Conaccessibility Dashboard" sotto il logo - CON PIÙ SPAZIO */
-form[aria-label="Login form"]::after,
-form[aria-label="Registration form"]::after {
+/* Sottotitolo */
+form[aria-label*="form" i]::after {
   content: "Conaccessibility Dashboard";
   position: absolute;
-  top: 82px;
+  top: 85px;
   left: 0;
   right: 0;
-  display: block;
-  font-size: 15px;
-  font-weight: 400;
+  font-size: 14px;
   text-align: center;
   color: #0ba5ec;
-  margin-bottom: 20px;
 }
 
-/* ============================================
-   LOGIN/REGISTRATION FORM INPUTS CUSTOMIZATION
-   ============================================ */
-
-/* Targetta tutti gli input (text, email, password) - FLAI STYLE */
-form[aria-label="Login form"] input[type="text"],
-form[aria-label="Login form"] input[type="email"],
-form[aria-label="Login form"] input[type="password"],
-form[aria-label="Registration form"] input[type="text"],
-form[aria-label="Registration form"] input[type="email"],
-form[aria-label="Registration form"] input[type="password"] {
-  /* Colori di sfondo e bordo - grigio chiaro come mockup */
-  background-color: #e8ecf0 !important;
-  border: 1px solid #e8ecf0 !important;
-  border-radius: 6px !important;
-
-  /* Testo */
-  color: #1a1a1a !important;
-  font-size: 15px !important;
-  padding: 12px 14px !important;
-  height: 45px !important;
-
-  /* Effetto focus */
-  transition: all 0.2s ease !important;
+/* Input Styles */
+form[aria-label*="form" i] input {
+  background-color: #f0f2f5 !important;
+  border: 1px solid #e0e0e0 !important;
+  border-radius: 8px !important;
+  height: 48px !important;
+  padding: 10px 15px !important;
+  margin-bottom: 5px !important;
 }
 
-/* Stato focus degli input - FLAI STYLE */
-form[aria-label="Login form"] input[type="text"]:focus,
-form[aria-label="Login form"] input[type="email"]:focus,
-form[aria-label="Login form"] input[type="password"]:focus,
-form[aria-label="Registration form"] input[type="text"]:focus,
-form[aria-label="Registration form"] input[type="email"]:focus,
-form[aria-label="Registration form"] input[type="password"]:focus {
-  border-color: #0ba5ec !important;
-  box-shadow: 0 0 0 3px rgba(11, 165, 236, 0.1) !important;
-  outline: none !important;
+form[aria-label*="form" i] input:focus {
+  border-color: var(--cosmic-primary) !important;
   background-color: #ffffff !important;
 }
 
-
-/* Labels degli input - FLAI STYLE - CON ANIMAZIONE FLOAT */
-form[aria-label="Login form"] label,
-form[aria-label="Registration form"] label {
-  color: #0ba5ec !important;
-  font-weight: 500 !important;
-  font-size: 14px !important;
-  background-color: #ffffff !important;
-  position: absolute !important;
-  left: 14px !important;
-  top: 50% !important;
-  transform: translateY(-50%) !important;
-  transition: all 0.2s ease !important;
-  pointer-events: none !important;
-  padding: 0 4px !important;
-  z-index: 1 !important;
+/* Button Submit */
+button[type="submit"],
+button[data-testid="login-button"] {
+  background: var(--cosmic-primary) !important;
+  height: 48px !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  transition: all 0.3s ease !important;
 }
 
-/* Label quando l'input è in focus o ha del testo - ANIMAZIONE FLOAT */
-form[aria-label="Login form"] input:focus + label,
-form[aria-label="Login form"] input:focus ~ label,
-form[aria-label="Login form"] input:not(:placeholder-shown) + label,
-form[aria-label="Login form"] input:not(:placeholder-shown) ~ label,
-form[aria-label="Registration form"] input:focus + label,
-form[aria-label="Registration form"] input:focus ~ label,
-form[aria-label="Registration form"] input:not(:placeholder-shown) + label,
-form[aria-label="Registration form"] input:not(:placeholder-shown) ~ label {
-  color: #0ba5ec !important;
-  background-color: #ffffff !important;
-  top: 0px !important;
-  transform: translateY(-50%) scale(0.85) !important;
-  font-size: 13px !important;
-  left: 10px !important;
+button[type="submit"]:hover {
+  background: var(--cosmic-primary-hover) !important;
 }
 
-/* Label in stato normale quando input è vuoto */
-form[aria-label="Login form"] input::placeholder,
-form[aria-label="Registration form"] input::placeholder {
-  opacity: 0 !important;
-  transition: opacity 0.2s ease !important;
-}
-
-/* Label quando input è in focus - mostra placeholder */
-form[aria-label="Login form"] input:focus::placeholder,
-form[aria-label="Registration form"] input:focus::placeholder {
-  opacity: 0.5 !important;
-  color: #999999 !important;
-}
-
-/* Targetta input specifici per ID (opzionale) */
-/*
-#email {
-  Stili specifici per campo email
-}
-
-#password {
-  Stili specifici per campo password
-}
-*/
-
-/* Messaggi di errore sotto gli input */
-form[aria-label="Login form"] span[role="alert"],
-form[aria-label="Registration form"] span[role="alert"] {
-  color: #ff4444 !important;
-  font-size: 13px !important;
-  margin-top: 4px !important;
-}
-
-/* Link "Forgot Password?" - FLAI STYLE */
-form[aria-label="Login form"] a[href="/forgot-password"] {
-  color: #0ba5ec !important;
-  font-weight: 400 !important;
-  font-size: 14px !important;
-  text-decoration: none !important;
-}
-
-form[aria-label="Login form"] a[href="/forgot-password"]:hover {
-  color: #0891d1 !important;
-  text-decoration: underline !important;
-}
-
-/* ============================================
-   LOGIN/REGISTRATION BUTTON CUSTOMIZATION
-   ============================================ */
-
-/* Bottone Submit - FLAI STYLE */
-form[aria-label="Login form"] button[type="submit"],
-form[aria-label="Registration form"] button[type="submit"],
-button[data-testid="login-button"],
-button[aria-label="Submit registration"] {
-  /* Colori e sfondo - blu solido come mockup */
-  background: #0ba5ec !important;
-  border: none !important;
-  border-radius: 6px !important;
-
-  /* Testo */
-  color: #ffffff !important;
-  font-size: 15px !important;
-  font-weight: 500 !important;
-  text-transform: none !important;
-  letter-spacing: 0px !important;
-
-  /* Dimensioni e padding */
-  height: 45px !important;
-  padding: 12px 16px !important;
-  margin-top: 16px !important;
-
-  /* Effetti */
-  box-shadow: none !important;
-  transition: all 0.2s ease !important;
-  cursor: pointer !important;
-}
-
-/* Bottone Submit - Hover - FLAI STYLE */
-form[aria-label="Login form"] button[type="submit"]:hover:not(:disabled),
-form[aria-label="Registration form"] button[type="submit"]:hover:not(:disabled),
-button[data-testid="login-button"]:hover:not(:disabled),
-button[aria-label="Submit registration"]:hover:not(:disabled) {
-  background: #0891d1 !important;
-  box-shadow: none !important;
-  transform: none !important;
-}
-
-/* Bottone Submit - Active (quando premuto) */
-form[aria-label="Login form"] button[type="submit"]:active:not(:disabled),
-form[aria-label="Registration form"] button[type="submit"]:active:not(:disabled),
-button[data-testid="login-button"]:active:not(:disabled),
-button[aria-label="Submit registration"]:active:not(:disabled) {
-  background: #0678b8 !important;
-  transform: none !important;
-  box-shadow: none !important;
-}
-
-/* Bottone Submit - Disabled */
-form[aria-label="Login form"] button[type="submit"]:disabled,
-form[aria-label="Registration form"] button[type="submit"]:disabled,
-button[data-testid="login-button"]:disabled,
-button[aria-label="Submit registration"]:disabled {
-  background: #93d4f5 !important;
-  color: #ffffff !important;
-  cursor: not-allowed !important;
-  box-shadow: none !important;
-  transform: none !important;
-}
-
-/* Spinner del bottone (quando sta caricando) */
-button[data-testid="login-button"] svg,
-button[aria-label="Submit registration"] svg {
-  color: #ffffff !important;
-}
-
-/* ============================================
-   FOOTER - PRIVACY E TERMINI DI SERVIZIO
-   ============================================ */
-
-/* Container footer */
-div[role="contentinfo"] {
-  margin-bottom: 20px !important;
-}
-
-/* Link "Informativa sulla privacy" e "Termini di servizio" - FLAI STYLE */
+/* Footer Links */
 div[role="contentinfo"] a {
   color: #ffffff !important;
-  font-size: 14px !important;
-  font-weight: 400 !important;
-  text-decoration: none !important;
-  transition: all 0.2s ease !important;
+  opacity: 0.8;
 }
 
-/* Hover sui link del footer */
 div[role="contentinfo"] a:hover {
-  color: #0ba5ec !important;
+  opacity: 1;
   text-decoration: underline !important;
-}
-
-/* Separatore tra i link */
-div[role="contentinfo"] div {
-  border-color: rgba(255, 255, 255, 0.3) !important;
 }
