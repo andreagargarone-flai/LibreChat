@@ -107,30 +107,61 @@ export function getTagsForRating(rating: TFeedbackRating): TFeedbackTag[] {
 export const feedbackTagKeySchema = z.enum(FEEDBACK_REASON_KEYS);
 export const feedbackRatingSchema = z.enum(FEEDBACK_RATINGS);
 
-export const feedbackSchema = z.object({
+// Schema per feedback con rating e tag
+export const ratingFeedbackSchema = z.object({
   rating: feedbackRatingSchema,
   tag: feedbackTagKeySchema,
   text: z.string().max(1024).optional(),
 });
 
+// Schema per feedback solo-testo (nuovo)
+export const textOnlyFeedbackSchema = z.object({
+  text: z.string().min(1).max(1024),
+  rating: z.undefined().optional(),
+  tag: z.undefined().optional(),
+});
+
+// Schema principale: union dei due tipi
+export const feedbackSchema = z.union([ratingFeedbackSchema, textOnlyFeedbackSchema]);
+
 export type TMinimalFeedback = z.infer<typeof feedbackSchema>;
 
 export type TFeedback = {
-  rating: TFeedbackRating;
-  tag: TFeedbackTag | undefined;
+  rating?: TFeedbackRating;
+  tag?: TFeedbackTag;
   text?: string;
 };
 
 export function toMinimalFeedback(feedback: TFeedback | undefined): TMinimalFeedback | undefined {
-  if (!feedback?.rating || !feedback?.tag || !feedback.tag.key) {
+  console.log('[toMinimalFeedback] Input:', feedback);
+
+  if (!feedback) {
+    console.log('[toMinimalFeedback] Feedback is undefined, returning undefined');
     return undefined;
   }
 
-  return {
-    rating: feedback.rating,
-    tag: feedback.tag.key,
-    text: feedback.text,
-  };
+  // Feedback con rating (con o senza text)
+  if (feedback.rating && feedback.tag && feedback.tag.key) {
+    const result = {
+      rating: feedback.rating,
+      tag: feedback.tag.key,
+      text: feedback.text,
+    };
+    console.log('[toMinimalFeedback] Rating feedback (with optional text), returning:', result);
+    return result;
+  }
+
+  // Feedback solo-testo (senza rating)
+  if (feedback.text && !feedback.rating) {
+    const result = {
+      text: feedback.text,
+    };
+    console.log('[toMinimalFeedback] Text-only feedback, returning:', result);
+    return result;
+  }
+
+  console.log('[toMinimalFeedback] No valid feedback structure, returning undefined');
+  return undefined;
 }
 
 export function getTagByKey(key: TFeedbackTagKey | undefined): TFeedbackTag | undefined {

@@ -56,25 +56,10 @@ button.hover-button[title*="Regenerate" i],
 /* ============================================
    SIDEBAR & CHAT LIST - LIBRECHAT ORIGINAL STYLE
    ============================================ */
-#chat-history-nav {
-  position: relative !important;
-  padding-top: 110px !important;
-  padding-bottom: 110px !important;
-  border-right: 2px solid var(--cosmic-border) !important;
-}
-
-/* Chat selezionata - sfondo azzurro come originale */
-[data-testid="convo-item"].bg-surface-active-alt,
-[data-testid="convo-item"]:has(.bg-surface-active-alt),
-div[data-testid="convo-item"][class*="bg-surface-active"] {
-  background-color: var(--cosmic-primary) !important;
-}
-
-/* Testo chat selezionata - bianco come originale */
-[data-testid="convo-item"].bg-surface-active-alt *,
-[data-testid="convo-item"]:has(.bg-surface-active-alt) *,
-div[data-testid="convo-item"][class*="bg-surface-active"] * {
-  color: #ffffff !important;
+/* Cambia il colore del bordo sinistro (pseudo-elemento ::before) in azzurro cosmic */
+[data-testid="convo-item"].bg-surface-active-alt::before,
+[data-testid="convo-item"]:hover::before {
+  background-color: #0581ce !important;
 }
 
 /* ============================================
@@ -137,15 +122,34 @@ div[data-testid="convo-item"][class*="bg-surface-active"] * {
   display: none !important;
 }
 
-/* Allineamento Turni */
-.user-turn {
+/* Nascondi icona utente nei messaggi */
+.message-render:has(.user-turn) > .relative.flex.flex-shrink-0 {
+  display: none !important;
+}
+
+/* Allineamento messaggi: domande a destra, risposte a sinistra */
+.message-render:has(.user-turn) {
   justify-content: flex-end !important;
   margin-bottom: 12px !important;
 }
 
-.agent-turn {
+.message-render:has(.agent-turn) {
   justify-content: flex-start !important;
   margin-bottom: 12px !important;
+}
+
+/* Allinea il contenuto interno dei messaggi utente a destra */
+.user-turn {
+  align-items: flex-end !important;
+}
+
+.user-turn .text-message {
+  text-align: right !important;
+}
+
+/* Allinea il contenuto interno dei messaggi assistente a sinistra */
+.agent-turn {
+  align-items: flex-start !important;
 }
 
 /* Fumetto Utente */
@@ -156,7 +160,7 @@ div[data-testid="convo-item"][class*="bg-surface-active"] * {
   padding: 12px 16px !important;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05) !important;
   max-width: 85% !important;
-  min-width: 100px !important;
+  min-width: 400px !important;
 }
 
 /* Fumetto Assistente */
@@ -167,7 +171,7 @@ div[data-testid="convo-item"][class*="bg-surface-active"] * {
   padding: 12px 16px !important;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05) !important;
   max-width: 85% !important;
-  min-width: 100px !important;
+  min-width: 400px !important;
 }
 
 /* Colore testo messaggi */

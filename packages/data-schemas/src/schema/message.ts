@@ -80,7 +80,7 @@ const messageSchema: Schema<IMessage> = new Schema(
         rating: {
           type: String,
           enum: ['thumbsUp', 'thumbsDown'],
-          required: true,
+          required: false,
         },
         tag: {
           type: mongoose.Schema.Types.Mixed,

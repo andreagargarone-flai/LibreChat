@@ -382,6 +382,8 @@ router.put('/:conversationId/:messageId/feedback', validateMessageReq, async (re
     const { conversationId, messageId } = req.params;
     const { feedback } = req.body;
 
+    logger.info(`[FEEDBACK DEBUG] Received feedback for message ${messageId}:`, JSON.stringify(feedback, null, 2));
+
     const updatedMessage = await updateMessage(
       req,
       {
@@ -390,6 +392,8 @@ router.put('/:conversationId/:messageId/feedback', validateMessageReq, async (re
       },
       { context: 'updateFeedback' },
     );
+
+    logger.info(`[FEEDBACK DEBUG] Updated message feedback:`, JSON.stringify(updatedMessage.feedback, null, 2));
 
     res.json({
       messageId,

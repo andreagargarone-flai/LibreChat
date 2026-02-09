@@ -1,11 +1,13 @@
 import React, { useState, useMemo, memo } from 'react';
 import { useRecoilState } from 'recoil';
+import { MessageSquare } from 'lucide-react';
 import type { TConversation, TMessage, TFeedback } from 'librechat-data-provider';
 import { EditIcon, Clipboard, CheckMark, ContinueIcon, RegenerateIcon } from '@librechat/client';
 import { useGenerationsByLatest, useLocalize } from '~/hooks';
 import { Fork } from '~/components/Conversations';
 import MessageAudio from './MessageAudio';
 import Feedback from './Feedback';
+import TextFeedbackDialog from './TextFeedbackDialog';
 import { cn } from '~/utils';
 import store from '~/store';
 
@@ -125,6 +127,7 @@ const HoverButtons = ({
 }: THoverButtons) => {
   const localize = useLocalize();
   const [isCopied, setIsCopied] = useState(false);
+  const [textFeedbackOpen, setTextFeedbackOpen] = useState(false);
   const [TextToSpeech] = useRecoilState<boolean>(store.textToSpeech);
 
   const endpoint = useMemo(() => {
@@ -246,6 +249,27 @@ const HoverButtons = ({
       {/* Feedback Buttons */}
       {!isCreatedByUser && handleFeedback != null && (
         <Feedback handleFeedback={handleFeedback} feedback={message.feedback} isLast={isLast} />
+      )}
+
+      {/* Text Feedback Button */}
+      {!isCreatedByUser && handleFeedback != null && (
+        <>
+          <HoverButton
+            onClick={() => setTextFeedbackOpen(true)}
+            title={localize('com_ui_feedback_text')}
+            icon={<MessageSquare size={19} />}
+            isActive={!!message.feedback?.text}
+            isLast={isLast}
+          />
+          <TextFeedbackDialog
+            open={textFeedbackOpen}
+            onOpenChange={setTextFeedbackOpen}
+            messageId={message.messageId}
+            conversationId={conversation.conversationId ?? ''}
+            existingFeedback={message.feedback}
+            handleFeedback={handleFeedback}
+          />
+        </>
       )}
 
       {/* Regenerate Button */}
