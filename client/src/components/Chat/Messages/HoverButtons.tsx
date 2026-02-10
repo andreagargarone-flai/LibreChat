@@ -23,6 +23,7 @@ type THoverButtons = {
   latestMessage: TMessage | null;
   isLast: boolean;
   index: number;
+  unfinished?: boolean;
   feedback?: TFeedback;
   feedbackText?: string;
   handleFeedback?: ({
@@ -131,6 +132,7 @@ const HoverButtons = ({
   handleContinue,
   latestMessage,
   isLast,
+  unfinished = false,
   feedback,
   feedbackText,
   handleFeedback,
@@ -177,21 +179,12 @@ const HoverButtons = ({
     return null;
   }
 
-  const { isCreatedByUser, error } = message;
+  const { isCreatedByUser, error, text } = message;
+  const messageContent = extractMessageContent(message);
+  const hasNoContent = !messageContent || messageContent.trim().length === 0;
 
-  if (error === true) {
-    return (
-      <div className="visible flex justify-center self-end lg:justify-start">
-        {regenerateEnabled && (
-          <HoverButton
-            onClick={regenerate}
-            title={localize('com_ui_regenerate')}
-            icon={<RegenerateIcon size="19" />}
-            isLast={isLast}
-          />
-        )}
-      </div>
-    );
+  if (error === true || unfinished === true || (!isCreatedByUser && hasNoContent)) {
+    return null;
   }
 
   const onEdit = () => {
@@ -292,17 +285,6 @@ const HoverButtons = ({
             }}
           />
         </>
-      )}
-
-      {/* Regenerate Button */}
-      {regenerateEnabled && (
-        <HoverButton
-          onClick={regenerate}
-          title={localize('com_ui_regenerate')}
-          icon={<RegenerateIcon size="19" />}
-          isLast={isLast}
-          className="active"
-        />
       )}
 
       {/* Continue Button */}

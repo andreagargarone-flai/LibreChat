@@ -93,6 +93,15 @@ const MessageRender = memo(
       return null;
     }
 
+    // Hide assistant messages with no content (e.g., cancelled/blocked before any text was generated)
+    if (!msg.isCreatedByUser && !isSubmitting) {
+      const messageText = msg.text || '';
+      const hasNoContent = !messageText || messageText.trim().length === 0;
+      if (hasNoContent) {
+        return null;
+      }
+    }
+
     const getChatWidthClass = () => {
       if (maximizeChatSpace) {
         return 'w-full max-w-full md:px-5 lg:px-1 xl:px-5';
@@ -193,6 +202,7 @@ const MessageRender = memo(
                   feedback={feedback}
                   feedbackText={feedbackText}
                   isLast={isLast}
+                  unfinished={msg.unfinished ?? false}
                 />
               </SubRow>
             )}

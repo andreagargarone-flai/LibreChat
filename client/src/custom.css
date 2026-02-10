@@ -66,15 +66,20 @@ button.hover-button[title*="Regenerate" i],
    CUSTOM HEADER
    ============================================ */
 .custom-header-wrapper {
-  height: 62px !important;
-  background: #ffffff !important;
-  border-bottom: 2px solid var(--cosmic-border) !important;
+  height: 60px !important;
+  background: #f7f7f8 !important;
+  /*border-bottom: 2px solid var(--cosmic-border) !important;*/
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
   position: relative !important;
   z-index: 50 !important;
   padding: 0 16px !important;
+}
+
+.custom-header-wrapper div {
+  background: #f7f7f8 !important;
+  content: "FLAi Dashboard";
 }
 
 .custom-header-wrapper::after {
@@ -122,8 +127,40 @@ button.hover-button[title*="Regenerate" i],
   display: none !important;
 }
 
+/* Sidebar sempre visibile su Desktop (>= 769px), a scomparsa solo su Mobile */
+@media (min-width: 769px) {
+
+  /* Forza la larghezza del contenitore esterno della nav */
+  div.flex-shrink-0.overflow-hidden:has(> [data-testid="nav"]) {
+    width: 260px !important;
+    min-width: 260px !important;
+  }
+
+  /* Forza la nav stessa ad essere visibile e in posizione */
+  [data-testid="nav"] {
+    width: 260px !important;
+    transform: none !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  /* Nascondi i bottoni di apertura/chiusura sidebar su desktop */
+  [data-testid="close-sidebar-button"],
+  [data-testid="open-sidebar-button"],
+  button#open-sidebar-button,
+  button#close-sidebar-button {
+    display: none !important;
+  }
+}
+
+/* Nascondi bottoni header */
+[data-testid="bookmark-menu"],
+[data-testid="add-multi-convo-button"] {
+  display: none !important;
+}
+
 /* Nascondi icona utente nei messaggi */
-.message-render:has(.user-turn) > .relative.flex.flex-shrink-0 {
+.message-render:has(.user-turn)>.relative.flex.flex-shrink-0 {
   display: none !important;
 }
 

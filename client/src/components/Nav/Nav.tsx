@@ -23,7 +23,7 @@ import {
   useLocalStorage,
   useNavScrolling,
 } from '~/hooks';
-import { useConversationsInfiniteQuery, useTitleGeneration } from '~/data-provider';
+import { useConversationsInfiniteQuery, useTitleGeneration, useGetStartupConfig } from '~/data-provider';
 import { Conversations } from '~/components/Conversations';
 import SearchBar from './SearchBar';
 import NewChat from './NewChat';
@@ -103,6 +103,8 @@ const Nav = memo(
           cacheTime: 300000,
         },
       );
+
+    const { data: config } = useGetStartupConfig();
 
     const computedHasNextPage = useMemo(() => {
       if (data?.pages && data.pages.length > 0) {
@@ -227,13 +229,26 @@ const Nav = memo(
           aria-hidden={!navVisible}
         >
           <div className="flex flex-1 flex-col overflow-hidden" ref={outerContainerRef}>
+            <div className="flex w-full items-center justify-center pl-2 pr-4 py-3 border-b">
+              <img
+                src="/images/toscanaAeroporti.png"
+                className="h-auto max-h-24 w-full object-contain"
+                alt={localize('com_ui_logo', { 0: config?.appTitle ?? 'LibreChat' })}
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                }}
+              />
+            </div>
             <MemoNewChat
               subHeaders={subHeaders}
               toggleNav={toggleNavVisible}
               headerButtons={headerButtons}
               isSmallScreen={isSmallScreen}
             />
-            <div className="flex min-h-0 flex-grow flex-col overflow-hidden">
+            <div className='border-b'>
+
+            </div>
+            <div className="flex min-h-0 flex-grow flex-col overflow-hidden mt-2">
               <Conversations
                 conversations={conversations}
                 moveToTop={moveToTop}
@@ -250,6 +265,18 @@ const Nav = memo(
           <Suspense fallback={<Skeleton className="mt-1 h-12 w-full rounded-xl" />}>
             <AccountSettings />
           </Suspense>
+          <div className="mt-2 flex w-full items-center justify-center pl-1 pr-4 border-t">
+            <a href="https://www.flai-analytics.com/" target="_blank" rel="noopener noreferrer">
+              <img
+                src="/images/logoFlai.png"
+                className="h-auto max-h-12 w-full object-contain mt-2"
+                alt="Flai Logo"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                }}
+              />
+            </a>
+          </div>
         </nav>
       </div>
     );

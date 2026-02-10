@@ -41,7 +41,7 @@ app.post('/v1/chat/completions', (req, res) => {
   console.log('========================================');
 
   // Risposta standard
-  const rispostaStandard = "Nel mezzo del cammin di nostra vita mi ritrovai per una selva oscura, ché la diritta via era smarrita. Ahi quanto a dir qual era è cosa dura esta selva selvaggia e aspra e forte che nel pensier rinova la paura! Tant'è amara che poco è più morte; ma per trattar del ben ch'i' vi trovai, dirò de l'altre cose ch'i' v' ho scorte. Io non so ben ridir com'i' v'intrai, tant'era pien di sonno a quel punto che la verace via abbandonai.";
+  const rispostaStandard = "L'aeroporto di Bergamo si chiama ufficialmente **Il Caravaggio**. \n\nFonti consultate:\n- [Scheda Tecnica Aeroporto](https://esempio.it/documenti/bg-info.pdf)\n- [Mappa Terminal](https://esempio.it/mappa.jpg)";
 
   if (stream) {
     // Risposta in streaming (SSE - Server-Sent Events)
